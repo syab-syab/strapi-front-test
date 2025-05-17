@@ -9,8 +9,11 @@ export async function fetchArticles() {
   return res.data.data
 }
 
+// slug = first-post
+// /articles?filters[slug][$eq]=first-post&populate=cover
 export async function fetchArticleBySlug(slug: string) {
   const res = await axios.get(`${API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover`)
+  console.log(res.data.data[0])
   return res.data.data[0]
 }
 

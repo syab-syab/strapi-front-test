@@ -24,7 +24,7 @@ export default async function ArticlePage({ params }: Props) {
   // const { title, content, publishedAt, cover } = article.attributes
   const { title, content, publishedAt, cover } = article
   // const imageUrl = cover?.data?.attributes?.url
-  const imageUrl = cover?.data?.url
+  const imageUrl = cover?.url
 
   return (
     <main className="p-8">
@@ -36,7 +36,7 @@ export default async function ArticlePage({ params }: Props) {
         <img
           src={`http://localhost:1337${imageUrl}`}
           // alt={cover?.data?.attributes?.alternativeText || ''}
-          alt={cover?.data?.alternativeText || ''}
+          alt={cover?.data?.alternativeText || 'image'}
           className="mb-6 rounded shadow"
         />
       )}
