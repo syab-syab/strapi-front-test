@@ -1,46 +1,65 @@
 // app/articles/[slug]/page.tsx
-import { fetchArticleBySlug } from '@/lib/api'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 
-type Props = {
-  params: { slug: string }
+type Article = {
+  id: number
+  documentId: string
+  title: string
+  slug: string
+  content: any[]
+  publishDate: string | null
+  createdAt: string
+  cover?: {
+    url: string
+    name: string
+    width: number
+    height: number
+  }
 }
 
-export async function generateStaticParams() {
-  const res = await fetch('http://localhost:1337/api/articles')
-  const data = await res.json()
+async function getArticleBySlug(slug: string): Promise<Article | null> {
+  // ${API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover`, {
+    cache: 'no-store',
+  })
 
-  // slug: article.attributes.slug, だとエラーが出る
-  return data.data.map((article: any) => ({
-    slug: article.slug,
-  }))
+  const json = await res.json()
+  const article = json.data[0]
+
+  return article || null
 }
 
-export default async function ArticlePage({ params }: Props) {
-  const article = await fetchArticleBySlug(params.slug)
+function renderRichText(content: any[]) {
+  return content.map((block: any, index: number) => {
+    if (block.type === 'paragraph') {
+      const text = block.children.map((child: any) => child.text).join('')
+      return <p key={index} className="mb-4">{text}</p>
+    }
+    return null
+  })
+}
+
+export default async function ArticlePage({ params }: { params: { slug: string } }) {
+  const article = await getArticleBySlug(params.slug)
 
   if (!article) return notFound()
 
-  // const { title, content, publishedAt, cover } = article.attributes
-  const { title, content, publishedAt, cover } = article
-  // const imageUrl = cover?.data?.attributes?.url
-  const imageUrl = cover?.url
-
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-2">{title}</h1>
-      <p className="text-gray-500 text-sm mb-4">
-        {new Date(publishedAt).toLocaleDateString()}
-      </p>
-      {imageUrl && (
-        <img
-          src={`http://localhost:1337${imageUrl}`}
-          // alt={cover?.data?.attributes?.alternativeText || ''}
-          alt={cover?.data?.alternativeText || 'image'}
-          className="mb-6 rounded shadow"
+    <main className="prose mx-auto p-8">
+      <h1>{article.title}</h1>
+
+      {article.cover?.url && (
+        <Image
+          src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}${article.cover.url}`}
+          alt={article.cover.name}
+          width={article.cover.width}
+          height={article.cover.height}
+          className="rounded-xl shadow-md"
         />
       )}
-      <div dangerouslySetInnerHTML={{ __html: content }} />
+
+      <div className="mt-6">{renderRichText(article.content)}</div>
     </main>
   )
 }
