@@ -1,6 +1,7 @@
 // app/articles/[slug]/page.tsx
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 
 type Article = {
   id: number
@@ -21,6 +22,7 @@ type Article = {
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   // ${API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover
   // http://localhost:1337/api/articles?filters[slug][$eq]=first-post&populate=cover
+  // populate=* で紐づいているタグまで取得できる
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover`, {
     cache: 'no-store',
   })
@@ -73,6 +75,9 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       )}
 
       <div className="mt-6">{renderRichText(article.content)}</div>
+      <div>
+        <Link href={"/"}>Topへ</Link>
+      </div>
     </main>
   )
 }
