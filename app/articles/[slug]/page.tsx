@@ -20,6 +20,7 @@ type Article = {
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
   // ${API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover
+  // http://localhost:1337/api/articles?filters[slug][$eq]=first-post&populate=cover
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles?filters[slug][$eq]=${slug}&populate=cover`, {
     cache: 'no-store',
   })
@@ -50,12 +51,24 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       <h1>{article.title}</h1>
 
       {article.cover?.url && (
-        <Image
+        // 画像のmax-widthはフロントで調整する方が良いかも
+        // Imageとimgのどちらを使うか迷う
+        // <Image
+        //   src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}${article.cover.url}`}
+        //   alt={article.cover.name}
+        //   width={article.cover.width}
+        //   height={article.cover.height}
+        //   className="rounded-xl shadow-md"
+        //   style={{
+        //     maxWidth: "500px"
+        //   }}
+        // />
+        <img
           src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}${article.cover.url}`}
           alt={article.cover.name}
-          width={article.cover.width}
-          height={article.cover.height}
-          className="rounded-xl shadow-md"
+          style={{
+            maxWidth: "500px"
+          }}
         />
       )}
 

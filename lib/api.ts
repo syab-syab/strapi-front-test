@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const API_URL = 'http://localhost:1337/api'
 
+// http://localhost:1337/api/articles?sort=publishedAt:desc&populate=cover
 export async function fetchArticles() {
   const res = await axios.get(`${API_URL}/articles?sort=publishedAt:desc&populate=cover`)
   console.log(res.data.data)

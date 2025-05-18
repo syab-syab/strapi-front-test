@@ -1,6 +1,7 @@
 // app/page.tsx
 import { fetchArticles } from '@/lib/api'
 import Link from 'next/link'
+// import Image from 'next/image'
 
 export default async function HomePage() {
   const articles = await fetchArticles()
@@ -18,6 +19,9 @@ export default async function HomePage() {
                 {article.title}
               </p>
             </Link>
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}${article.cover.formats.thumbnail.url}`}
+            />
           </li>
         ))}
       </ul>
