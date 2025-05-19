@@ -1,12 +1,11 @@
-// app/page.tsx
-import { fetchArticles } from '@/lib/api'
+'use client'
+
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-// import Image from 'next/image'
-// import { useEffect, useState } from 'react'
 
 type Tag = {
   id: number
-  name: string
+  name: 'Blog' | 'Extensions' | 'WebApp'
 }
 
 type Article = {
@@ -16,54 +15,56 @@ type Article = {
   tags: Tag[]
 }
 
-export default async function HomePage() {
-  // const [articles, setArticles] = useState<Article[]>([])
-  const articles = await fetchArticles()
+export default function HomePage() {
+  const [articles, setArticles] = useState<Article[]>([])
 
-  //   useEffect(() => {
-  //   const fetchArticles = async () => {
-  //     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles?populate=tags&cover`, {
-  //       cache: 'no-store',
-  //     })
-  //     const json = await res.json()
-  //     setArticles(json.data)
-  //   }
+  useEffect(() => {
+    const fetchArticles = async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/articles?populate=tags`, {
+        cache: 'no-store',
+      })
+      const json = await res.json()
+      setArticles(json.data)
+    }
 
-  //   fetchArticles()
-  // }, [])
+    fetchArticles()
+  }, [])
+
+  // タグ名ごとに記事をグルーピング（固定の3カテゴリ）
+  const groupByTagName = (tagName: Tag['name']) =>
+    articles.filter((article) => article.tags.some((tag) => tag.name === tagName))
+
+  const groupedArticles = {
+    Blog: groupByTagName('Blog'),
+    Extensions: groupByTagName('Extensions'),
+    WebApp: groupByTagName('WebApp'),
+  }
 
   return (
-    <main className="p-8">
-      <h1 className="text-3xl font-bold mb-6">記事一覧</h1>
-      <ul className="space-y-4">
-        {articles.map((article: any) => (
-          <li key={article.id} style={{marginBottom: "20px"}}>
-            {/* article.attributes.slugだとエラーが出る */}
-            <Link href={`/articles/${article.slug}`}>
-              <p className="text-lg text-blue-600 underline">
-                {/* article.attributes.titleだとエラーが出る */}
-                {article.title}
-              </p>
-            </Link>
-            <img
-              src={`${process.env.NEXT_PUBLIC_API_IMAGE_URL}${article.cover.formats.thumbnail.url}`}
-            />
-          {/* タグの表示 */}
-          <div className="flex gap-2 mt-2 flex-wrap">
-            <p>tag</p>
-            {article.tags?.map((tag: Tag) => (
-              <span
-                key={tag.id}
-                className="px-2 py-1 text-sm bg-gray-200 text-gray-700 rounded"
-              >
-                #{tag.name}
-              </span>
-            ))}
-          </div>
-          <hr />
-          </li>
-        ))}
-      </ul>
+    <main className="max-w-3xl mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6">記事一覧（タグ別）</h1>
+
+      {(['Blog', 'Extensions', 'WebApp'] as const).map((tag) => (
+        <section key={tag} className="mb-10">
+          <h2 className="text-2xl font-semibold mb-4">#{tag}</h2>
+          {groupedArticles[tag].length === 0 ? (
+            <p className="text-gray-500">記事がありません。</p>
+          ) : (
+            <ul className="space-y-2">
+              {groupedArticles[tag].map((article) => (
+                <li key={article.id} className="border p-3 rounded">
+                  <Link
+                    href={`/articles/${article.slug}`}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {article.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))}
     </main>
   )
 }
