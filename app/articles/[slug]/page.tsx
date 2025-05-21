@@ -18,6 +18,7 @@ type Article = {
     width: number
     height: number
   }
+  ad: any[]
 }
 
 async function getArticleBySlug(slug: string): Promise<Article | null> {
@@ -76,6 +77,10 @@ export default async function ArticlePage({ params }: { params: { slug: string }
       )}
 
       <div className="mt-6">{renderRichText(article.content)}</div>
+      <hr />
+      <div>
+        {renderRichText(article?.ad)}
+      </div>
       <div>
         <Link href={"/"}>Topへ</Link>
       </div>
