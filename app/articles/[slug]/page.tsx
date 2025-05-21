@@ -2,6 +2,7 @@
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
+import { renderRichText } from '@/lib/renderRichText'
 
 type Article = {
   id: number
@@ -33,15 +34,15 @@ async function getArticleBySlug(slug: string): Promise<Article | null> {
   return article || null
 }
 
-function renderRichText(content: any[]) {
-  return content.map((block: any, index: number) => {
-    if (block.type === 'paragraph') {
-      const text = block.children.map((child: any) => child.text).join('')
-      return <p key={index} className="mb-4">{text}</p>
-    }
-    return null
-  })
-}
+// function renderRichText(content: any[]) {
+//   return content.map((block: any, index: number) => {
+//     if (block.type === 'paragraph') {
+//       const text = block.children.map((child: any) => child.text).join('')
+//       return <p key={index} className="mb-4">{text}</p>
+//     }
+//     return null
+//   })
+// }
 
 export default async function ArticlePage({ params }: { params: { slug: string } }) {
   const article = await getArticleBySlug(params.slug)
